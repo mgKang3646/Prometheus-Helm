@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.deployment.name }}
+  namespace: {{ .Values.namespace }}
+spec:
+  replicas: {{ .Values.deployment.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ .Values.deployment.label }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.deployment.label }}
+    spec:
+      containers:
+        - name: {{ .Values.deployment.containerName }}
+          image: {{ .Values.deployment.image }}
+          args:
+            - "--config.file=/etc/prometheus/prometheus.yml"
+            - "--storage.tsdb.path=/prometheus/"
+          ports:
+            - containerPort: {{ .Values.deployment.containerPort }}
+          volumeMounts:
+            - name: {{ .Values.deployment.volumeName }}
+              mountPath: /etc/prometheus/
+            - name: {{ .Values.deployment.storageName }}
+              mountPath: /prometheus/
+      volumes:
+        - name: {{ .Values.deployment.volumeName }}
+          configMap:
+            defaultMode: 420 # 읽기전용
+            name: {{ .Values.deployment.cmName }}
+        - name: {{ .Values.deployment.storageName }}
+          emptyDir: {} #POD 안에 볼륨생성하여 컨테이너끼리 공유

@@ -1,0 +1,24 @@
+
+
+namespace: prometheus
+cm:
+  name: prometheus-server-conf
+
+svc:
+  name: prometheus-service
+  type: LoadBalancer
+  backend: prometheus-server
+  svcPort: 8080
+  targetPort: 9090
+
+deployment:
+  name: prometheus-deployment
+  replicaCount: 1
+  label: prometheus-server
+  containerName: prometheus
+  containerPort: 9090
+  image : prom/prometheus:latest
+  volumeName: prometheus-config-volume
+  storageName: prometheus-storage-volume
+  cmName: prometheus-server-conf
+
